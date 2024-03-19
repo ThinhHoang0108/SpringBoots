@@ -61,7 +61,7 @@ public class UserController {
             return "redirect:/users";
         }
     }
-
+    //cai nay de test commit
     @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable(name = "id") Integer id,
                              RedirectAttributes redirectAttributes,
