@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+<div>
+    <h2>[[${pageTitle}]]</h2>
+    <!--    <a th:href="@{users/newuser}">Create new userss</a>-->
+</div>
+<form th:action="@{/users/save}" method="post" style="max-width: 700px; margin: 0 auto"
+
+      th:object="${user}" onsubmit="return checkEmailUnique(this)">
+    <input type="hidden" th:field="*{id}"/>
+    <div class="border border-secondary rounded p-3">
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">E-mail</label>
+            <div class="col-sm-8">
+                <input type="email" class="form-control" th:field="*{email}" required minlength="8" maxlength="128"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">First Name</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" th:field="*{firstName}" required minlength="2" maxlength="45"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Last Name</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" th:field="*{lastName}" required minlength="2" maxlength="45"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Password</label>
+            <div class="col-sm-8">
+                <input type="password" class="form-control" th:field="*{password}" required minlength="8"
+                       maxlength="20"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Role</label>
+            <div class="col-sm-8">
+                <th:block th:each="role : ${listRole}">
+                    <input type="checkbox" th:field="*{roles}"
+                           th:text="${role.name}"
+                           th:value="${role.id}"
+                           class="m-2"
+                    />
+                    - <small>[[${role.description}]]</small>
+                    <br>
+                </th:block>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label">Enabled: </label>
+            <div class="col-sm-8">
+                <input type="checkbox" th:field="*{enabled}"/>
+            </div>
+        </div>
+<!--        <div class="form-group row">-->
+<!--            <label class="col-sm-4 col-form-label">Photos: </label>-->
+<!--            <div class="col-sm-8">-->
+<!--                <input type="file" id="fileImage" accept="{image/jpeg, image/png}" th:field="*{enabled}"/>-->
+<!--                <img id="thumbnail" alt="Photo preview" th:src="@{/image/alili.png}">-->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="text-center">
+            <input type="submit" value="Save" class="btn btn-primary">
+            <input type="button" value="Cancel" class="btn btn-secondary" id="buttonCancel">
+        </div>
+    </div>
+</form>
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#buttonCancel").on("click", function () {
+            window.location = "[[@{/users}]]";
+        });
+        $("#fileImage").change(function () {
+            fileSize = this.files[0].size;
+            // alert("File size: " + fileSize);
+
+            if (fileSize > 1048576) {
+                this.setCustomValidity("You must choose an image less than 1MB!");
+                this.reportValidity();
+            } else {
+                this.setCustomValidity("");
+                showImageThumbnail(this);
+            }
+        });
+    });
+
+    function showImageThumbnail(fileInput) {
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $("#thumbnail").attr("src", e.target.result);
+        };
+        reader.readAsDataURL(file)
+    }
+
+    function checkEmailUnique(form) {
+        url = "[[@{/users/check_email}]]";
+        userEmail = $("#email").val();
+        userId = $("#id").val();
+        csrfValue = $("input[name='_csrf']").val();
+        params = {id: userId, email: userEmail, _csrf: csrfValue};
+        $.post(url, params, function (response) {
+            if (response == "OK") {
+                form.submit();
+            } else if (response == "Duplicated") {
+                alert("There is another user having email the email " + userEmail);
+            }
+        });
+        return false;
+    }
+</script>
+</html>
