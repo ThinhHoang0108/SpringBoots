@@ -28,7 +28,7 @@ public class UserController {
         // return "users";
         return listByPage(1, model);
     }
-
+    //phan trang su dung spring boot application
     @GetMapping("/users/page/{pageNumber}")
     public String listByPage(@PathVariable(name = "pageNumber") int pageNumber, Model model) {
         Page<User> page = service.listByPage(pageNumber);
