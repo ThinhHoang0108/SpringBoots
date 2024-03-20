@@ -5,6 +5,7 @@ import com.hellospring.demoproject.enity.User;
 import com.hellospring.demoproject.service.UserNotFoundException;
 import com.hellospring.demoproject.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class UserController {
@@ -21,8 +23,27 @@ public class UserController {
 
     @GetMapping("/users")
     public String listAll(Model model) {
-        List<User> userList = service.listAll();
-        model.addAttribute("listUsers", userList);
+        // List<User> userList = service.listAll();
+        // model.addAttribute("listUsers", userList);
+        // return "users";
+        return listByPage(1, model);
+    }
+
+    @GetMapping("/users/page/{pageNumber}")
+    public String listByPage(@PathVariable(name = "pageNumber") int pageNumber, Model model) {
+        Page<User> page = service.listByPage(pageNumber);
+        List<User> listUsers = page.getContent();
+        long startCount = (pageNumber - 1) * UserService.USER_PER_PAGE + 1;
+        long endCount = startCount + UserService.USER_PER_PAGE - 1;
+        if (endCount > page.getTotalElements()) {
+            endCount = page.getTotalElements();
+        }
+        model.addAttribute("currentPage", pageNumber);
+        model.addAttribute("totalPage", page.getTotalPages());
+        model.addAttribute("startCount", startCount);
+        model.addAttribute("endCount", endCount);
+        model.addAttribute("totalItems", page.getTotalElements());
+        model.addAttribute("listUsers", listUsers);
         return "users";
     }
 
@@ -46,8 +67,8 @@ public class UserController {
 
     @GetMapping("/users/edit/{id}")
     public String editUser(@PathVariable(name = "id") Integer id,
-                           RedirectAttributes redirectAttributes,
-                           Model model) {
+            RedirectAttributes redirectAttributes,
+            Model model) {
         try {
             User user = service.get(id);
             List<Role> roleList = service.roleList();
@@ -61,11 +82,12 @@ public class UserController {
             return "redirect:/users";
         }
     }
-    //cai nay de test commit
+
+    // cai nay de test commit
     @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable(name = "id") Integer id,
-                             RedirectAttributes redirectAttributes,
-                             Model model) {
+            RedirectAttributes redirectAttributes,
+            Model model) {
         try {
             service.delete(id);
             redirectAttributes.addFlashAttribute("message", "The userID=" + id + " has been deleted");
@@ -78,8 +100,8 @@ public class UserController {
 
     @GetMapping("/users/{id}/enabled/{status}")
     public String updateUserEnabledStatus(@PathVariable("id") Integer id,
-                                          @PathVariable("status") boolean enabled,
-                                          RedirectAttributes redirectAttributes) {
+            @PathVariable("status") boolean enabled,
+            RedirectAttributes redirectAttributes) {
         service.updateUserEnabledStatus(id, enabled);
         String status = enabled ? "enabled" : "disabled";
         String message = "The user ID " + id + " has been " + status;

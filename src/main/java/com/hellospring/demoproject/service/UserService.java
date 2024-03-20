@@ -2,11 +2,15 @@ package com.hellospring.demoproject.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hellospring.demoproject.enity.Role;
 import com.hellospring.demoproject.enity.User;
+import com.hellospring.demoproject.repository.PagingAndSort;
 import com.hellospring.demoproject.repository.RoleRepository;
 import com.hellospring.demoproject.repository.UserRepository;
 
@@ -16,8 +20,11 @@ import java.util.NoSuchElementException;
 @Service
 @Transactional
 public class UserService {
+    public static final int USER_PER_PAGE = 3;
     @Autowired
     private UserRepository repository;
+    @Autowired
+    private PagingAndSort repoPagingAndSort;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
@@ -29,6 +36,11 @@ public class UserService {
 
     public List<Role> roleList() {
         return (List<Role>) roleRepository.findAll();
+    }
+
+    public Page<User> listByPage(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, USER_PER_PAGE);
+        return repoPagingAndSort.findAll(pageable);
     }
 
     public void save(User user) {
@@ -43,10 +55,12 @@ public class UserService {
 
     public boolean isEmailUnique(Integer id, String email) {
         User userByEmail = repository.getUserByEmail(email);
-        if (userByEmail == null) return true;
+        if (userByEmail == null)
+            return true;
         boolean isCreatingNew = (id == null);
         if (isCreatingNew) {
-            if (userByEmail != null) return false;
+            if (userByEmail != null)
+                return false;
         } else {
             if (userByEmail.getId() != id) {
                 return false;
@@ -70,8 +84,8 @@ public class UserService {
         }
         repository.deleteById(id);
     }
-    public void updateUserEnabledStatus(Integer id, boolean enabled){
+
+    public void updateUserEnabledStatus(Integer id, boolean enabled) {
         repository.updateEnabledStatus(id, enabled);
     }
 }
-
