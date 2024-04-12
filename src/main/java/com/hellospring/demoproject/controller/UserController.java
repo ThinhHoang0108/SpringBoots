@@ -6,6 +6,7 @@ import com.hellospring.demoproject.service.UserNotFoundException;
 import com.hellospring.demoproject.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,24 +27,33 @@ public class UserController {
         // List<User> userList = service.listAll();
         // model.addAttribute("listUsers", userList);
         // return "users";
-        return listByPage(1, model);
+        return listByPage(1, model, "firstName", "asc");
     }
     //phan trang su dung spring boot application
     @GetMapping("/users/page/{pageNumber}")
-    public String listByPage(@PathVariable(name = "pageNumber") int pageNumber, Model model) {
-        Page<User> page = service.listByPage(pageNumber);
+    public String listByPage(@PathVariable(name = "pageNumber") int pageNumber, Model model,
+    @Param("sortField") String sortField,@Param("sortDir") String sortDir) {
+        System.out.println(sortField);
+        System.out.println(sortDir);
+        Page<User> page = service.listByPage(pageNumber, sortField, sortDir);
         List<User> listUsers = page.getContent();
         long startCount = (pageNumber - 1) * UserService.USER_PER_PAGE + 1;
         long endCount = startCount + UserService.USER_PER_PAGE - 1;
         if (endCount > page.getTotalElements()) {
             endCount = page.getTotalElements();
         }
+        String reverseSortDir = sortDir.equals("asc") ? "des" : "asc";
         model.addAttribute("currentPage", pageNumber);
         model.addAttribute("totalPage", page.getTotalPages());
         model.addAttribute("startCount", startCount);
         model.addAttribute("endCount", endCount);
         model.addAttribute("totalItems", page.getTotalElements());
         model.addAttribute("listUsers", listUsers);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("reverseSortDir", reverseSortDir);
+
+
         return "users";
     }
 
