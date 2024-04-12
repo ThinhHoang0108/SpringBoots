@@ -27,6 +27,7 @@ public class UserController {
         // List<User> userList = service.listAll();
         // model.addAttribute("listUsers", userList);
         // return "users";
+        //test commit
         return listByPage(1, model, "firstName", "asc");
     }
     //phan trang su dung spring boot application
