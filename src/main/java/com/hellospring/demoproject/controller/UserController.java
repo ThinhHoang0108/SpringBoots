@@ -28,15 +28,16 @@ public class UserController {
         // model.addAttribute("listUsers", userList);
         // return "users";
         //test commit
-        return listByPage(1, model, "firstName", "asc");
+        return listByPage(1, model, "firstName", "asc", null);
     }
     //phan trang su dung spring boot application
     @GetMapping("/users/page/{pageNumber}")
     public String listByPage(@PathVariable(name = "pageNumber") int pageNumber, Model model,
-    @Param("sortField") String sortField,@Param("sortDir") String sortDir) {
-        System.out.println(sortField);
-        System.out.println(sortDir);
-        Page<User> page = service.listByPage(pageNumber, sortField, sortDir);
+    @Param("sortField") String sortField,@Param("sortDir") String sortDir,
+    @Param("keyword") String keyword) {
+        // System.out.println(sortField);
+        // System.out.println(sortDir);
+        Page<User> page = service.listByPage(pageNumber, sortField, sortDir, keyword);
         List<User> listUsers = page.getContent();
         long startCount = (pageNumber - 1) * UserService.USER_PER_PAGE + 1;
         long endCount = startCount + UserService.USER_PER_PAGE - 1;
@@ -53,6 +54,7 @@ public class UserController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("sortField", sortField);
         model.addAttribute("reverseSortDir", reverseSortDir);
+        model.addAttribute("keyword", keyword);
 
 
         return "users";

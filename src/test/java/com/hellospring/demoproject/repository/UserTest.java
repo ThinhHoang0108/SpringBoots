@@ -136,16 +136,29 @@ public class UserTest {
         int i = 1;
 
     }
+
     @Test
-    public void testListFirstPage(){
+    public void testListFirstPage() {
         int pageNumber = 0;
         int pageSize = 2;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<User> page = repoPagingAndSort.findAll(pageable);
-        
+
         List<User> listUsers = page.getContent();
         listUsers.forEach(user -> System.out.println(user));
         assertThat(listUsers.size()).isEqualTo(pageSize);
     }
 
+    @Test
+    public void testSearchUser() {
+        String keyword = "thinh";
+        int pageNumber = 0;
+        int pageSize = 2;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<User> page = repository.findAll(keyword, pageable);
+
+        List<User> listUsers = page.getContent();
+        listUsers.forEach(user -> System.out.println(user));
+        assertThat(listUsers.size()).isGreaterThan(0);
+    }
 }
