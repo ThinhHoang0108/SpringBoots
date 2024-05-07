@@ -27,14 +27,15 @@ public class UserController {
         // List<User> userList = service.listAll();
         // model.addAttribute("listUsers", userList);
         // return "users";
-        //test commit
+        // test commit
         return listByPage(1, model, "firstName", "asc", null);
     }
-    //phan trang su dung spring boot application
+
+    // phan trang su dung spring boot application
     @GetMapping("/users/page/{pageNumber}")
     public String listByPage(@PathVariable(name = "pageNumber") int pageNumber, Model model,
-    @Param("sortField") String sortField,@Param("sortDir") String sortDir,
-    @Param("keyword") String keyword) {
+            @Param("sortField") String sortField, @Param("sortDir") String sortDir,
+            @Param("keyword") String keyword) {
         // System.out.println(sortField);
         // System.out.println(sortDir);
         Page<User> page = service.listByPage(pageNumber, sortField, sortDir, keyword);
@@ -56,7 +57,6 @@ public class UserController {
         model.addAttribute("reverseSortDir", reverseSortDir);
         model.addAttribute("keyword", keyword);
 
-
         return "users";
     }
 
@@ -75,7 +75,12 @@ public class UserController {
         System.out.println(user);
         service.save(user);
         redirectAttributes.addFlashAttribute("message", "The user has been saved success");
-        return "redirect:/users";
+        return getFirstPartOfEmail(user);
+    }
+
+    private String getFirstPartOfEmail(User user) {
+        String firstPartOfEmail = user.getEmail().split("@")[0];
+        return "redirect:/users/page/1?sortField=id&sortDir=asc&keyword=" + firstPartOfEmail;
     }
 
     @GetMapping("/users/edit/{id}")
