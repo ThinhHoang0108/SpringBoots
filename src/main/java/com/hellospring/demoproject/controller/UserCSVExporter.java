@@ -14,16 +14,9 @@ import com.hellospring.demoproject.enity.User;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-public class UserCSVExporter {
+public class UserCSVExporter extends AbstractExporter {
     public void export(List<User> listUsers, HttpServletResponse response) throws IOException {
-        //Setting ngay thang cho ten file .csv
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String timestamp = dateFormat.format(new Date());
-        String fileName = "users_" + timestamp + ".csv";
-        response.setContentType("text/csv");
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=" + fileName;
-        response.setHeader(headerKey, headerValue);
+       super.setResponseHeader(response, "text/csv", ".csv");
         ICsvBeanWriter csvBeanWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
         String[] csvHeader = { "User ID", "E-mail", "First Name", "Last Name", "Roles", "Enabled" };
         String[] fieldMapping = {"id", "email","firstName", "lastName", "roles", "enabled"};
