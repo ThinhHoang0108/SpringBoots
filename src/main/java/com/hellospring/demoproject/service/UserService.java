@@ -32,7 +32,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public List<User> listAll() {
-        return (List<User>) repository.findAll();
+        return (List<User>) repository.findAll(Sort.by("firstName").ascending());
     }
 
     public List<Role> roleList() {

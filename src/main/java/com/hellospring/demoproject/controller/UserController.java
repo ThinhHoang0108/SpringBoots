@@ -4,6 +4,10 @@ import com.hellospring.demoproject.enity.Role;
 import com.hellospring.demoproject.enity.User;
 import com.hellospring.demoproject.service.UserNotFoundException;
 import com.hellospring.demoproject.service.UserService;
+
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -126,4 +131,13 @@ public class UserController {
         redirectAttributes.addFlashAttribute("message", message);
         return "redirect:/users";
     }
+
+    @GetMapping("/users/export/csv")
+    public String exportToCSV(HttpServletResponse response) throws IOException {
+        List<User> listUsers = service.listAll();
+        UserCSVExporter exporter = new UserCSVExporter();
+        exporter.export(listUsers, response);
+        return new String();
+    }
+
 }
