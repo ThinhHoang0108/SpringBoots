@@ -13,4 +13,9 @@ public class HomeController {
         model.addAttribute("name", name);
         return "hello";
     }
+    @GetMapping("/login")
+    public String viewLoginPage() {
+        return "login";
+    }
+    
 }
